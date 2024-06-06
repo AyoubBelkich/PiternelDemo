@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
@@ -6,10 +7,20 @@ use App\Models\Product;
 use App\Models\Category;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
+use App\Models\Order;
 use Illuminate\Support\Facades\Storage;
 
 class ProductController extends Controller
 {
+    public function profile()
+    {
+        $user = Auth::user();
+        $products = Product::where('user_id', $user->id)->get();
+        $orders = Order::where('user_id', $user->id)->get();
+
+        return view('user.profile', compact('user', 'products', 'orders'));
+    }
+
     public function manage()
     {
         $user = Auth::user();
@@ -36,7 +47,6 @@ class ProductController extends Controller
 
         return view('user.products.edit', compact('product', 'mainCategories', 'productCategories', 'selectedMainCategory', 'selectedSubCategory', 'selectedSubSubCategory', 'selectedGenderCategory', 'selectedSizeCategory'));
     }
-
     public function store(Request $request)
     {
         $request->validate([
@@ -75,7 +85,7 @@ class ProductController extends Controller
         $product->price_per_day = $request->price_per_day;
         $product->available_from = $request->availability_from;
         $product->available_to = $request->availability_to;
-        $product->rental_available = $request->rental_available;
+        $product->rental_available = $request->product_type == 2 ? ($request->rental_available ?? 0) : null;
         $product->stock_quantity = $request->stock_quantity;
         $product->image = $imagePath;
         $product->user_id = $user->id;
@@ -122,12 +132,30 @@ class ProductController extends Controller
         // Ensure price and price_per_day are set correctly based on product type
         if ($request->product_type == 1) {
             $validatedData['price_per_day'] = null;
+            $validatedData['rental_available'] = null;
         } else {
             $validatedData['price'] = null;
+            $validatedData['rental_available'] = $request->rental_available ?? 0;
         }
 
         // Update the product with the validated data
-        $product->update($validatedData);
+        $product->update([
+            'name' => $validatedData['name'],
+            'description' => $validatedData['description'],
+            'image' => $validatedData['image'] ?? $product->image,
+            'main_category' => $validatedData['main_category'],
+            'sub_category' => $validatedData['sub_category'],
+            'sub_sub_category' => $validatedData['sub_sub_category'],
+            'gender_category' => $validatedData['gender_category'],
+            'size_category' => $validatedData['size_category'],
+            'product_type' => $validatedData['product_type'],
+            'price' => $validatedData['price'],
+            'price_per_day' => $validatedData['price_per_day'],
+            'available_from' => $validatedData['availability_from'],
+            'available_to' => $validatedData['availability_to'],
+            'stock_quantity' => $validatedData['stock_quantity'],
+            'rental_available' => $validatedData['rental_available']
+        ]);
 
         // Update categories
         $categories = array_filter([
@@ -142,7 +170,6 @@ class ProductController extends Controller
 
         return redirect()->route('user.products.manage')->with('success', 'Product updated successfully');
     }
-
     public function destroy(Product $product)
     {
         $product->delete();

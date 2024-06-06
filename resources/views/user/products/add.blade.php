@@ -207,7 +207,7 @@
                     document.getElementById('gender-category').innerHTML =
                         '<option value="">Select</option>';
                     document.getElementById('size-category-container').style.display = 'none';
-                    document.getElementById('size-category').innerHTML = '<option value="">Select</option>';
+                    document.getElementById('size-category').innerHTML = '<option value="">Selecet</option>';
                 }
             });
 

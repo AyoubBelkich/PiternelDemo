@@ -130,7 +130,6 @@ class CartController extends Controller
 
         return redirect()->back()->with('success', 'Product removed from cart!');
     }
-
     public function checkout()
     {
         $cart = session()->get('cart', []);
@@ -139,7 +138,7 @@ class CartController extends Controller
             return redirect()->route('cart.index')->with('error', 'Your cart is empty!');
         }
 
-        return view('transactions.checkout', compact('cart'));
+        return view('cart.checkout', compact('cart'));
     }
 
     private function verifyCartStructure($cart)

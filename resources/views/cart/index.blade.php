@@ -107,7 +107,7 @@
                     id="grand-total">{{ number_format(array_sum(array_merge(array_column($sellProducts, 'total'), array_column($rentProducts, 'total'))), 2) }}</span>
             </h4>
         </div>
-        <a href="{{ route('cart.checkout') }}" class="btn btn-success btn-lg btn-block mt-3">Proceed to Checkout</a>
+        <a href="{{ route('checkout.show') }}" class="btn btn-success btn-lg btn-block mt-3">Proceed to Checkout</a>
     </div>
 @endsection
 

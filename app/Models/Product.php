@@ -31,4 +31,8 @@ class Product extends Model
         'available_from',
         'available_to',
     ];
+    public function scopeAvailable($query)
+    {
+        return $query->where('rental_available', true);
+    }
 }

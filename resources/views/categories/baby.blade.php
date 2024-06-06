@@ -41,38 +41,31 @@
                             <div id="sub-subcategories-{{ $subcategory->id }}"
                                 class="collapse sub-subcategory-list {{ $isAnySubSubcategoryChecked ? 'show' : '' }}">
                                 @foreach ($subcategory->children as $subSubcategory)
-                                    @if (in_array($subSubcategory->name, ['Geslacht', 'Maat']))
-                                        <div class="sub-subcategory-header">
-                                            <label class="form-check-label">
-                                                {{ $subSubcategory->name }}
-                                            </label>
-                                            <div id="sub-subcategory-children-{{ $subSubcategory->id }}" class="pl-3">
-                                                @foreach ($subSubcategory->children as $child)
-                                                    <div class="form-check">
-                                                        <input type="checkbox" name="subcategories[]"
-                                                            value="{{ $child->id }}"
-                                                            class="form-check-input sub-subcategory-checkbox"
-                                                            id="subSubcategory{{ $child->id }}"
-                                                            {{ in_array($child->id, request()->input('subcategories', [])) ? 'checked' : '' }}>
-                                                        <label class="form-check-label"
-                                                            for="subSubcategory{{ $child->id }}">
-                                                            {{ $child->name }}
-                                                        </label>
-                                                    </div>
-                                                @endforeach
+                                    <div
+                                        class="form-check {{ in_array($subSubcategory->name, ['Geslacht', 'Maat']) ? 'subcategory-parent' : '' }}">
+                                        <input type="checkbox" name="subcategories[]" value="{{ $subSubcategory->id }}"
+                                            class="form-check-input sub-subcategory-checkbox"
+                                            id="subSubcategory{{ $subSubcategory->id }}"
+                                            {{ in_array($subSubcategory->id, request()->input('subcategories', [])) ? 'checked' : '' }}>
+                                        <label class="form-check-label" for="subSubcategory{{ $subSubcategory->id }}">
+                                            {{ $subSubcategory->name }}
+                                        </label>
+                                    </div>
+                                    <div id="sub-subcategory-children-{{ $subSubcategory->id }}"
+                                        class="pl-3 {{ in_array($subSubcategory->name, ['Geslacht', 'Maat']) ? 'subcategory-children' : '' }}">
+                                        @foreach ($subSubcategory->children as $child)
+                                            <div class="form-check">
+                                                <input type="checkbox" name="subcategories[]" value="{{ $child->id }}"
+                                                    class="form-check-input sub-subcategory-checkbox sub-subcategory-child-{{ $subSubcategory->id }}"
+                                                    id="subSubcategoryChild{{ $child->id }}"
+                                                    {{ in_array($child->id, request()->input('subcategories', [])) ? 'checked' : '' }}>
+                                                <label class="form-check-label"
+                                                    for="subSubcategoryChild{{ $child->id }}">
+                                                    {{ $child->name }}
+                                                </label>
                                             </div>
-                                        </div>
-                                    @else
-                                        <div class="form-check">
-                                            <input type="checkbox" name="subcategories[]" value="{{ $subSubcategory->id }}"
-                                                class="form-check-input sub-subcategory-checkbox"
-                                                id="subSubcategory{{ $subSubcategory->id }}"
-                                                {{ in_array($subSubcategory->id, request()->input('subcategories', [])) ? 'checked' : '' }}>
-                                            <label class="form-check-label" for="subSubcategory{{ $subSubcategory->id }}">
-                                                {{ $subSubcategory->name }}
-                                            </label>
-                                        </div>
-                                    @endif
+                                        @endforeach
+                                    </div>
                                 @endforeach
                             </div>
                         @endforeach
@@ -138,8 +131,12 @@
             /* Hidden by default */
         }
 
-        .sub-subcategory-header {
+        .subcategory-parent {
             font-weight: bold;
+        }
+
+        .subcategory-children {
+            padding-left: 20px;
         }
 
         .products-grid {
@@ -217,6 +214,24 @@
                             function(subSubCheckbox) {
                                 subSubCheckbox.checked = false;
                             });
+                    }
+                });
+            });
+
+            // Add event listener for parent checkboxes of gender and size
+            document.querySelectorAll('.form-check-input.sub-subcategory-checkbox').forEach(function(checkbox) {
+                checkbox.addEventListener('change', function() {
+                    const subSubcategoryId = this.value;
+                    const subSubcategoryChildren = document.querySelectorAll(
+                        `.sub-subcategory-child-${subSubcategoryId}`);
+                    if (this.checked) {
+                        subSubcategoryChildren.forEach(function(childCheckbox) {
+                            childCheckbox.checked = true;
+                        });
+                    } else {
+                        subSubcategoryChildren.forEach(function(childCheckbox) {
+                            childCheckbox.checked = false;
+                        });
                     }
                 });
             });

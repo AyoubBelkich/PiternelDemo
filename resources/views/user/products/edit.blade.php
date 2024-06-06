@@ -230,9 +230,9 @@
                     '{{ $selectedSubSubCategory ? $selectedSubSubCategory->id : '' }}');
             @endif
             @if ($selectedSubCategory && $selectedSubCategory->id == 60)
-                loadSubcategories(62, 'gender-category', 'gender-category-container',
+                loadSubcategories(160, 'gender-category', 'gender-category-container',
                     '{{ $selectedGenderCategory ? $selectedGenderCategory->id : '' }}');
-                loadSubcategories(66, 'size-category', 'size-category-container',
+                loadSubcategories(164, 'size-category', 'size-category-container',
                     '{{ $selectedSizeCategory ? $selectedSizeCategory->id : '' }}');
             @endif
         });

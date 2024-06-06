@@ -9,6 +9,7 @@ use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\Admin\ProductController as AdminProductController;
 use App\Http\Controllers\StripeController;
 use App\Http\Controllers\CartController;
+use App\Http\Controllers\OrderController;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
 
@@ -59,16 +60,21 @@ Route::middleware(['auth', AdminMiddleware::class])->group(function () {
 
 // User Routes
 Route::middleware(['auth'])->group(function () {
-    Route::get('/profile', [UserController::class, 'profile'])->name('profile');
-});
-
-Route::middleware(['auth'])->group(function () {
+    Route::get('/profile', [ProductController::class, 'profile'])->name('profile');
     Route::get('/user/products', [ProductController::class, 'manage'])->name('user.products.manage');
     Route::get('/user/products/add', [ProductController::class, 'add'])->name('user.products.add');
     Route::post('/user/products', [ProductController::class, 'store'])->name('user.products.store');
     Route::get('/user/products/{product}/edit', [ProductController::class, 'edit'])->name('user.products.edit');
     Route::put('/user/products/{product}', [ProductController::class, 'update'])->name('user.products.update');
     Route::delete('/user/products/{product}', [ProductController::class, 'destroy'])->name('user.products.destroy');
+    Route::get('/user/orders', [OrderController::class, 'index'])->name('user.orders.index');
+    Route::get('/user/orders/{order}', [OrderController::class, 'show'])->name('user.orders.show');
+    Route::post('/user/orders/{order}/complete', [OrderController::class, 'complete'])->name('user.orders.complete');
+    Route::post('/user/orders/{order}/validate', [OrderController::class, 'validateOrder'])->name('user.orders.validate');
+    Route::post('/user/orders/{order}/unvalidate', [OrderController::class, 'unvalidate'])->name('user.orders.unvalidate');
+    Route::get('/user/orders/pending', [OrderController::class, 'pending'])->name('user.orders.pending');
+    Route::get('/user/orders/completed', [OrderController::class, 'completed'])->name('user.orders.completed');
+    Route::get('/user/orders/cancelled', [OrderController::class, 'cancelled'])->name('user.orders.cancelled');
 });
 
 // 2FA Google Routes
@@ -95,6 +101,8 @@ Route::get('/cart/remove/{product}', [CartController::class, 'remove'])->name('c
 Route::get('/cart/checkout', [CartController::class, 'checkout'])->name('cart.checkout');
 
 // Stripe payment routes
-Route::get('/checkout/{product}', [StripeController::class, 'checkout'])->name('checkout');
-Route::post('/checkout/{product}', [StripeController::class, 'processPayment'])->name('checkout.process');
-Route::get('/payment/success', [StripeController::class, 'paymentSuccess'])->name('payment.success');
+Route::middleware(['auth'])->group(function () {
+    Route::get('/checkout', [StripeController::class, 'showCheckoutForm'])->name('checkout.show');
+    Route::post('/checkout/process', [StripeController::class, 'processCheckout'])->name('checkout.process');
+    Route::get('/payment/success', [StripeController::class, 'paymentSuccess'])->name('payment.success');
+});
